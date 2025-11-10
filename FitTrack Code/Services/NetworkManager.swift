@@ -103,7 +103,19 @@ class NetworkManager: ObservableObject {
         if httpResponse.statusCode >= 400 {
             // Try to decode error message
             if let errorResponse = try? JSONDecoder().decode(ErrorResponse.self, from: data) {
-                throw NetworkError.serverError(errorResponse.error)
+                // Clean up error message for better UX
+                let cleanError = errorResponse.error
+                    .replacingOccurrences(of: "Failed to create account: signup error: ", with: "")
+                    .replacingOccurrences(of: "signin error: ", with: "")
+                
+                // Check for specific Supabase errors
+                if cleanError.contains("email_address_invalid") {
+                    throw NetworkError.serverError("Please use a valid email address (e.g., yourname@gmail.com)")
+                } else if cleanError.contains("User already registered") {
+                    throw NetworkError.serverError("This email is already registered. Try logging in instead.")
+                }
+                
+                throw NetworkError.serverError(cleanError)
             }
             throw NetworkError.serverError("Server error: \(httpResponse.statusCode)")
         }
