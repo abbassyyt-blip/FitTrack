@@ -198,15 +198,18 @@ struct AuthView: View {
                     isLoading = false
                 }
             } catch let error as NetworkError {
+                print("❌ NetworkError: \(error)")
                 await MainActor.run {
                     isLoading = false
                     errorMessage = error.localizedDescription
                     showError = true
                 }
             } catch {
+                print("❌ Unexpected error: \(error)")
+                print("❌ Error details: \(error.localizedDescription)")
                 await MainActor.run {
                     isLoading = false
-                    errorMessage = "An unexpected error occurred"
+                    errorMessage = "Connection error: \(error.localizedDescription)"
                     showError = true
                 }
             }

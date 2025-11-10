@@ -67,6 +67,7 @@ class NetworkManager: ObservableObject {
         requiresAuth: Bool = false
     ) async throws -> T {
         guard let url = URL(string: baseURL + endpoint) else {
+            print("❌ Invalid URL: \(baseURL + endpoint)")
             throw NetworkError.invalidURL
         }
         
@@ -81,9 +82,13 @@ class NetworkManager: ObservableObject {
         
         if let body = body {
             request.httpBody = body
+            print("📤 Request to: \(method) \(url)")
+            print("📤 Body: \(String(data: body, encoding: .utf8) ?? "nil")")
         }
         
+        print("🌐 Making request to: \(url)")
         let (data, response) = try await URLSession.shared.data(for: request)
+        print("📥 Received response with \(data.count) bytes")
         
         guard let httpResponse = response as? HTTPURLResponse else {
             throw NetworkError.serverError("Invalid response")
