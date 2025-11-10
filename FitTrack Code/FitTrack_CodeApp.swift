@@ -10,9 +10,17 @@ import SwiftData
 
 @main
 struct FitTrack_CodeApp: App {
+    @StateObject private var networkManager = NetworkManager.shared
+    
     var body: some Scene {
         WindowGroup {
-            MainView()
+            if networkManager.isAuthenticated {
+                MainView()
+                    .environmentObject(networkManager)
+            } else {
+                AuthView()
+                    .environmentObject(networkManager)
+            }
         }
         .modelContainer(for: [Workout.self, WorkoutExercise.self, WorkoutSet.self])
     }
